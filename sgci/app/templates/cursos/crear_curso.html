@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Crear Curso{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-md-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-1"><i class="bi bi-plus-circle me-2 text-primary"></i>Crear Nuevo Curso</h4>
+        <p class="text-muted small mb-4">El curso se guardará en estado <strong>Borrador</strong> hasta que lo publiques.</p>
+
+        <form method="POST" action="{{ url_for('cursos.crear_curso') }}">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="titulo" class="form-label fw-semibold">Título del curso <span class="text-danger">*</span></label>
+              <input type="text" id="titulo" name="titulo" class="form-control"
+                     value="{{ form_data.get('titulo', '') }}"
+                     placeholder="Ej. Inglés para principiantes" required />
+            </div>
+
+            <div class="col-md-6">
+              <label for="idioma" class="form-label fw-semibold">Idioma <span class="text-danger">*</span></label>
+              <input type="text" id="idioma" name="idioma" class="form-control"
+                     value="{{ form_data.get('idioma', '') }}"
+                     placeholder="Ej. Inglés, Francés, Alemán" required />
+            </div>
+
+            <div class="col-md-6">
+              <label for="nivel" class="form-label fw-semibold">Nivel <span class="text-danger">*</span></label>
+              <select id="nivel" name="nivel" class="form-select" required>
+                <option value="">-- Selecciona --</option>
+                {% for n in ['A1','A2','B1','B2','C1','C2'] %}
+                <option value="{{ n }}" {{ 'selected' if form_data.get('nivel') == n }}>{{ n }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label for="descripcion" class="form-label fw-semibold">Descripción</label>
+              <textarea id="descripcion" name="descripcion" class="form-control" rows="3"
+                        placeholder="Describe los objetivos y contenidos del curso…">{{ form_data.get('descripcion', '') }}</textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label for="fecha_inicio" class="form-label fw-semibold">Fecha de inicio</label>
+              <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control"
+                     value="{{ form_data.get('fecha_inicio', '') }}" />
+            </div>
+            <div class="col-md-6">
+              <label for="fecha_fin" class="form-label fw-semibold">Fecha de fin</label>
+              <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
+                     value="{{ form_data.get('fecha_fin', '') }}" />
+            </div>
+
+            <div class="col-md-6">
+              <label for="cupo_maximo" class="form-label fw-semibold">Cupo máximo</label>
+              <input type="number" id="cupo_maximo" name="cupo_maximo" class="form-control"
+                     min="1" value="{{ form_data.get('cupo_maximo', '') }}"
+                     placeholder="Deja vacío para cupo ilimitado" />
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-floppy me-1"></i>Guardar curso
+            </button>
+            <a href="{{ url_for('cursos.listar_cursos') }}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Cursos Disponibles{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0"><i class="bi bi-search me-2 text-primary"></i>Cursos Disponibles</h3>
+  <a href="{{ url_for('inscripciones.mis_inscripciones') }}" class="btn btn-sm btn-outline-primary">
+    <i class="bi bi-card-checklist me-1"></i>Mis inscripciones
+  </a>
+</div>
+
+<!-- Filtros -->
+<form method="GET" class="row g-2 mb-4 align-items-end">
+  <div class="col-md-4">
+    <label class="form-label small fw-semibold">Idioma</label>
+    <input type="text" name="idioma" class="form-control form-control-sm"
+           value="{{ idioma_filtro }}" placeholder="Ej. Inglés" />
+  </div>
+  <div class="col-md-3">
+    <label class="form-label small fw-semibold">Nivel</label>
+    <select name="nivel" class="form-select form-select-sm">
+      <option value="">Todos</option>
+      {% for n in niveles %}
+      <option value="{{ n }}" {{ 'selected' if nivel_filtro == n }}>{{ n }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-sm btn-primary">
+      <i class="bi bi-funnel me-1"></i>Buscar
+    </button>
+    <a href="{{ url_for('inscripciones.cursos_disponibles') }}" class="btn btn-sm btn-outline-secondary ms-1">
+      Limpiar
+    </a>
+  </div>
+</form>
+
+{% if cursos %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  {% for c in cursos %}
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <span class="small fw-bold">PUBLICADO</span>
+        <span class="badge bg-white text-dark">{{ c.idioma }} · {{ c.nivel }}</span>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title fw-bold">{{ c.titulo }}</h5>
+        <p class="card-text text-muted small">
+          {{ c.descripcion[:100] ~ '…' if c.descripcion and c.descripcion|length > 100 else c.descripcion or 'Sin descripción.' }}
+        </p>
+        <ul class="list-unstyled small text-muted">
+          <li><i class="bi bi-person me-1"></i>{{ c.profesor.nombre_completo }}</li>
+          <li><i class="bi bi-people me-1"></i>
+            {{ c.total_inscritos }} inscritos
+            {% if c.cupo_maximo %} / {{ c.cupo_maximo }}
+              {% if not c.tiene_cupo %}
+                <span class="badge bg-danger ms-1">Sin cupo</span>
+              {% endif %}
+            {% endif %}
+          </li>
+          {% if c.fecha_inicio %}
+          <li><i class="bi bi-calendar me-1"></i>
+            {{ c.fecha_inicio.strftime('%d/%m/%Y') }}
+            {% if c.fecha_fin %} – {{ c.fecha_fin.strftime('%d/%m/%Y') }}{% endif %}
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+      <div class="card-footer bg-transparent border-0">
+        {% if c.id in ids_inscritos %}
+          <span class="btn btn-sm btn-success w-100 disabled">
+            <i class="bi bi-check-circle me-1"></i>Ya inscrito
+          </span>
+        {% elif not c.tiene_cupo %}
+          <span class="btn btn-sm btn-secondary w-100 disabled">Sin cupo disponible</span>
+        {% else %}
+          <form method="POST"
+                action="{{ url_for('inscripciones.inscribirse', curso_id=c.id) }}"
+                onsubmit="return confirm('¿Confirmas tu inscripción a «{{ c.titulo }}»?')">
+            <button type="submit" class="btn btn-sm btn-primary w-100">
+              <i class="bi bi-pencil-square me-1"></i>Inscribirme
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-journal-x display-3 d-block mb-3"></i>
+  <h5>No hay cursos publicados en este momento.</h5>
+  <p class="small">Vuelve pronto para ver nuevas ofertas.</p>
+</div>
+{% endif %}
+{% endblock %}

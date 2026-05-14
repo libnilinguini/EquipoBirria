@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Consultar Cursos (Admin){% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0"><i class="bi bi-table me-2 text-primary"></i>Consultar Cursos</h3>
+  <span class="badge bg-primary fs-6">{{ cursos|length }} curso(s)</span>
+</div>
+
+<!-- Filtro por estado -->
+<form method="GET" class="row g-2 mb-4">
+  <div class="col-auto">
+    <select name="estado" class="form-select form-select-sm">
+      <option value="">Todos los estados</option>
+      {% for e in estados %}
+      <option value="{{ e }}" {{ 'selected' if estado_filtro == e }}>{{ e|capitalize }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-sm btn-outline-primary">
+      <i class="bi bi-funnel me-1"></i>Filtrar
+    </button>
+    <a href="{{ url_for('admin.consultar_cursos') }}" class="btn btn-sm btn-outline-secondary ms-1">Limpiar</a>
+  </div>
+</form>
+
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Título</th>
+          <th>Idioma / Nivel</th>
+          <th>Profesor</th>
+          <th>Inscritos</th>
+          <th>Estado</th>
+          <th class="text-center">Cambiar estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in cursos %}
+        <tr>
+          <td class="text-muted small">{{ c.id }}</td>
+          <td class="fw-semibold">{{ c.titulo }}</td>
+          <td>{{ c.idioma }} <span class="badge bg-light text-dark border">{{ c.nivel }}</span></td>
+          <td>{{ c.profesor.nombre_completo }}</td>
+          <td>
+            <span class="badge bg-secondary">{{ c.total_inscritos }}</span>
+            {% if c.cupo_maximo %}<small class="text-muted">/ {{ c.cupo_maximo }}</small>{% endif %}
+          </td>
+          <td>
+            <span class="badge
+              {% if c.estado == 'publicado' %}bg-success
+              {% elif c.estado == 'cerrado' %}bg-danger
+              {% else %}bg-warning text-dark{% endif %}">
+              {{ c.estado|capitalize }}
+            </span>
+          </td>
+          <td class="text-center">
+            <form method="POST"
+                  action="{{ url_for('admin.cambiar_estado_curso', curso_id=c.id) }}"
+                  class="d-flex justify-content-center gap-1">
+              <select name="estado" class="form-select form-select-sm" style="width:130px">
+                {% for e in estados %}
+                <option value="{{ e }}" {{ 'selected' if c.estado == e }}>{{ e|capitalize }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit" class="btn btn-sm btn-outline-primary"
+                      onclick="return confirm('¿Confirmas el cambio de estado?')">
+                <i class="bi bi-check2"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">No hay cursos registrados.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

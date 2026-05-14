@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Registrarse{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h4 class="card-title fw-bold mb-1">
+          <i class="bi bi-person-plus me-2 text-primary"></i>Crear cuenta
+        </h4>
+        <p class="text-muted small mb-4">Completa el formulario para registrarte en el SGCI.</p>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="nombre" class="form-label fw-semibold">Nombre</label>
+              <input type="text" id="nombre" name="nombre" class="form-control"
+                     value="{{ form_data.get('nombre', '') }}" required />
+            </div>
+            <div class="col-md-6">
+              <label for="apellido" class="form-label fw-semibold">Apellido</label>
+              <input type="text" id="apellido" name="apellido" class="form-control"
+                     value="{{ form_data.get('apellido', '') }}" required />
+            </div>
+
+            <div class="col-12">
+              <label for="email" class="form-label fw-semibold">Correo electrónico</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input type="email" id="email" name="email" class="form-control"
+                       value="{{ form_data.get('email', '') }}" placeholder="tu@correo.com" required />
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="password" class="form-label fw-semibold">Contraseña</label>
+              <input type="password" id="password" name="password" class="form-control"
+                     placeholder="Mínimo 8 caracteres" required />
+            </div>
+            <div class="col-md-6">
+              <label for="confirmar_password" class="form-label fw-semibold">Confirmar contraseña</label>
+              <input type="password" id="confirmar_password" name="confirmar_password"
+                     class="form-control" required />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Tipo de usuario</label>
+              <div class="d-flex gap-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="rol" id="rol_alumno"
+                         value="alumno" {{ 'checked' if form_data.get('rol','alumno') == 'alumno' }} />
+                  <label class="form-check-label" for="rol_alumno">
+                    <i class="bi bi-mortarboard me-1"></i>Alumno
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="rol" id="rol_profesor"
+                         value="profesor" {{ 'checked' if form_data.get('rol') == 'profesor' }} />
+                  <label class="form-check-label" for="rol_profesor">
+                    <i class="bi bi-person-workspace me-1"></i>Profesor
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-circle me-2"></i>Registrarse
+            </button>
+          </div>
+        </form>
+
+        <hr />
+        <p class="text-center mb-0 small">
+          ¿Ya tienes cuenta?
+          <a href="{{ url_for('auth.login') }}" class="fw-semibold">Inicia sesión</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Mis Cursos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0">
+    <i class="bi bi-journal-bookmark me-2 text-primary"></i>
+    {% if current_user.es_alumno %}Cursos Disponibles{% else %}Mis Cursos{% endif %}
+  </h3>
+  {% if current_user.es_profesor or current_user.es_admin %}
+  <a href="{{ url_for('cursos.crear_curso') }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-circle me-1"></i>Nuevo Curso
+  </a>
+  {% endif %}
+</div>
+
+{% if cursos %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  {% for c in cursos %}
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center
+        {% if c.estado == 'publicado' %}bg-success text-white
+        {% elif c.estado == 'cerrado' %}bg-secondary text-white
+        {% else %}bg-warning text-dark{% endif %}">
+        <span class="small fw-bold text-uppercase">{{ c.estado }}</span>
+        <span class="badge bg-white text-dark">{{ c.idioma }} · {{ c.nivel }}</span>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title fw-bold">{{ c.titulo }}</h5>
+        <p class="card-text text-muted small">
+          {{ c.descripcion[:100] ~ '…' if c.descripcion and c.descripcion|length > 100 else c.descripcion or 'Sin descripción.' }}
+        </p>
+        <ul class="list-unstyled small text-muted mb-0">
+          <li><i class="bi bi-person me-1"></i>{{ c.profesor.nombre_completo }}</li>
+          <li><i class="bi bi-people me-1"></i>{{ c.total_inscritos }} inscritos
+            {% if c.cupo_maximo %} / {{ c.cupo_maximo }}{% endif %}
+          </li>
+          {% if c.fecha_inicio %}
+          <li><i class="bi bi-calendar me-1"></i>{{ c.fecha_inicio.strftime('%d/%m/%Y') }}</li>
+          {% endif %}
+        </ul>
+      </div>
+      <div class="card-footer bg-transparent border-0 d-flex flex-wrap gap-2">
+        {% if current_user.es_profesor or current_user.es_admin %}
+          {% if c.estado != 'cerrado' %}
+          <a href="{{ url_for('cursos.editar_curso', curso_id=c.id) }}"
+             class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-pencil"></i> Editar
+          </a>
+          {% endif %}
+
+          {% if c.estado == 'borrador' %}
+          <form method="POST" action="{{ url_for('cursos.publicar_curso', curso_id=c.id) }}"
+                onsubmit="return confirm('¿Publicar este curso?')">
+            <button class="btn btn-sm btn-success">
+              <i class="bi bi-cloud-upload"></i> Publicar
+            </button>
+          </form>
+          {% endif %}
+
+          {% if c.estado != 'cerrado' %}
+          <form method="POST" action="{{ url_for('cursos.cerrar_curso', curso_id=c.id) }}"
+                onsubmit="return confirm('¿Cerrar este curso? Esta acción es irreversible.')">
+            <button class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-x-circle"></i> Cerrar
+            </button>
+          </form>
+          {% endif %}
+
+          <a href="{{ url_for('materiales.gestionar_materiales', curso_id=c.id) }}"
+             class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-folder2"></i> Materiales
+          </a>
+        {% endif %}
+
+        {% if current_user.es_alumno %}
+        <a href="{{ url_for('materiales.consultar_materiales', curso_id=c.id) }}"
+           class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-folder2-open"></i> Ver materiales
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-journal-x display-3 d-block mb-3"></i>
+  <h5>No hay cursos disponibles.</h5>
+  {% if current_user.es_profesor %}
+  <a href="{{ url_for('cursos.crear_curso') }}" class="btn btn-primary mt-2">
+    <i class="bi bi-plus-circle me-1"></i>Crear mi primer curso
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
