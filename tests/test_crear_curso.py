@@ -1,31 +1,72 @@
 import unittest
-from unittest.mock import MagicMock
+from app import create_app, db
+from app.models.models import Curso, Usuario, RolUsuario
 
 class TestCrearCurso(unittest.TestCase):
     """Pruebas para el caso de uso: Crear Curso (Responsable: Libni Morales)"""
 
     def setUp(self):
-        self.controller = MagicMock()
+        self.app = create_app('testing')
+        self.app.config['TESTING'] = True
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        self.app.config['WTF_CSRF_ENABLED'] = False
+        
+        self.client = self.app.test_client()
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        
+        db.create_all()
+        
+        # Para crear un curso, necesitamos que exista un Profesor y que inicie sesión
+        profesor = Usuario(
+            nombre="Libni", 
+            apellido="Morales", 
+            email="libni@sgci.com", 
+            rol=RolUsuario.PROFESOR
+        )
+        profesor.set_password("password123")
+        db.session.add(profesor)
+        db.session.commit()
+        
+        # Simulamos el inicio de sesión
+        self.client.post('/auth/login', data={
+            'email': 'libni@sgci.com',
+            'password': 'password123'
+        })
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
 
     def test_n1_crear_borrador_exitoso(self):
         """Prueba N1: Datos válidos, estado Borrador."""
-        self.controller.crear_curso.return_value = "Borrador"
-        resultado = self.controller.crear_curso(nombre="Inglés A1", cupo=20)
-        self.assertEqual(resultado, "Borrador")
+        response = self.client.post('/cursos/crear', data={
+            'titulo': 'Inglés A1',
+            'descripcion': 'Curso básico introductorio',
+            'idioma': 'Inglés',
+            'nivel': 'A1',
+            'cupo_maximo': 20
+        }, follow_redirects=True)
+        
+        # Verificamos que el controlador nos devuelva el mensaje de éxito
+        self.assertIn(b'creado correctamente', response.data)
+        
+        # Verificamos que realmente se guardó en la base de datos como borrador
+        curso = Curso.query.filter_by(titulo='Inglés A1').first()
+        self.assertIsNotNone(curso)
+        self.assertEqual(curso.estado, 'borrador')
 
-    def test_a2_fechas_incoherentes(self):
-        """Prueba A2: Fecha fin anterior a inicio."""
-        # Simulamos que la validación falla (retorna False)
-        self.controller.validar_fechas.return_value = False
-        valido = self.controller.validar_fechas("2026-05-01", "2026-04-01")
-        self.assertFalse(valido)
-
-    def test_e1_error_base_datos(self):
-        """Prueba E1: Error de conexión al guardar."""
-        self.controller.guardar.side_effect = Exception("Error de conexión")
-        with self.assertRaises(Exception):
-            self.controller.guardar()
+    def test_a2_campos_faltantes(self):
+        """Prueba A2: Intento de creación sin campos obligatorios."""
+        # El controlador exige titulo, idioma y nivel obligatoriamente
+        response = self.client.post('/cursos/crear', data={
+            'titulo': '', 
+            'idioma': '',
+            'nivel': ''
+        }, follow_redirects=True)
+        
+        self.assertIn(b'T\xc3\xadtulo, idioma y nivel son obligatorios', response.data)
 
 if __name__ == '__main__':
     unittest.main()
-    
