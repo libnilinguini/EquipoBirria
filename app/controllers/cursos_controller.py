@@ -12,6 +12,7 @@ Equipo Birria
 """
 
 from functools import wraps
+from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 from app import db
@@ -77,8 +78,18 @@ def crear_curso():
         descripcion = request.form.get("descripcion", "").strip()
         idioma = request.form.get("idioma", "").strip()
         nivel = request.form.get("nivel", "").strip()
-        fecha_inicio = request.form.get("fecha_inicio") or None
-        fecha_fin = request.form.get("fecha_fin") or None
+        fecha_inicio_str = request.form.get("fecha_inicio")
+        fecha_fin_str = request.form.get("fecha_fin")
+
+        fecha_inicio = (
+            datetime.strptime(fecha_inicio_str, "%Y-%m-%d").date()
+            if fecha_inicio_str else None
+        )
+
+        fecha_fin = (
+            datetime.strptime(fecha_fin_str, "%Y-%m-%d").date()
+            if fecha_fin_str else None
+        )
         cupo = request.form.get("cupo_maximo")
 
         if not all([titulo, idioma, nivel]):
