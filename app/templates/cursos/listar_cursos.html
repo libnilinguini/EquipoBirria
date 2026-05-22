@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Mis Cursos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="wii-page-title mb-0">
+    <i class="bi bi-journal-bookmark-fill"></i>
+    {% if current_user.es_alumno %}Cursos Disponibles{% else %}Mis Cursos{% endif %}
+  </h3>
+  {% if current_user.es_profesor or current_user.es_admin %}
+  <a href="{{ url_for('cursos.crear_curso') }}" class="btn btn-wii btn-wii-sm">
+    <i class="bi bi-plus-circle me-1"></i>Nuevo Curso
+  </a>
+  {% endif %}
+</div>
+
+{% if cursos %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  {% for c in cursos %}
+  <div class="col">
+    <div class="wii-channel">
+      <div class="wii-channel-header
+        {% if c.estado == 'publicado' %}bg-success text-white
+        {% elif c.estado == 'cerrado' %}bg-secondary text-white
+        {% else %}bg-warning text-dark{% endif %}">
+        <div class="d-flex justify-content-between align-items-center">
+          <span>{{ c.estado|upper }}</span>
+          <div class="d-flex gap-1 align-items-center">
+            {% if c.codigo_acceso %}<span title="Curso protegido">🔒</span>{% endif %}
+            {% if c.calificaciones_activas %}<span title="Con calificaciones">⭐</span>{% endif %}
+            <span class="wii-badge wii-badge-blue">{{ c.idioma }} · {{ c.nivel }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="wii-channel-body">
+        <h5 class="mb-1" style="font-weight:900;color:#0d3b6e;">{{ c.titulo }}</h5>
+        <p class="text-muted mb-2" style="font-size:0.84rem;font-weight:600;">
+          {{ c.descripcion[:90] ~ '…' if c.descripcion and c.descripcion|length > 90 else c.descripcion or 'Sin descripción.' }}
+        </p>
+        <div style="font-size:0.82rem;font-weight:700;color:#4a6080;">
+          <div><i class="bi bi-person me-1 text-wii"></i>{{ c.profesor.nombre_completo }}</div>
+          {% set ayudantes_list = c.ayudantes.all() %}
+          {% if ayudantes_list %}
+          <div><i class="bi bi-people me-1 text-wii"></i>Ayudantes: {{ ayudantes_list|map(attribute='nombre')|join(', ') }}</div>
+          {% endif %}
+          <div><i class="bi bi-person-fill me-1 text-wii"></i>{{ c.total_inscritos }} inscritos
+            {% if c.cupo_maximo %} / {{ c.cupo_maximo }}{% endif %}
+          </div>
+          {% if c.fecha_inicio %}
+          <div><i class="bi bi-calendar me-1 text-wii"></i>{{ c.fecha_inicio.strftime('%d/%m/%Y') }}</div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="wii-channel-footer d-flex flex-wrap gap-2">
+        {% if current_user.es_profesor or current_user.es_admin %}
+          {% if c.estado != 'cerrado' %}
+          <a href="{{ url_for('cursos.editar_curso', curso_id=c.id) }}" class="btn btn-wii-outline btn-wii-sm">
+            <i class="bi bi-pencil"></i> Editar
+          </a>
+          {% endif %}
+          {% if c.estado == 'borrador' %}
+          <form method="POST" action="{{ url_for('cursos.publicar_curso', curso_id=c.id) }}"
+                onsubmit="return confirm('¿Publicar este curso?')">
+            <button class="btn btn-wii-green btn-wii-sm"><i class="bi bi-cloud-upload"></i> Publicar</button>
+          </form>
+          {% endif %}
+          {% if c.estado != 'cerrado' %}
+          <form method="POST" action="{{ url_for('cursos.cerrar_curso', curso_id=c.id) }}"
+                onsubmit="return confirm('¿Cerrar este curso?')">
+            <button class="btn btn-wii-red btn-wii-sm"><i class="bi bi-x-circle"></i> Cerrar</button>
+          </form>
+          {% endif %}
+          <a href="{{ url_for('materiales.gestionar_materiales', curso_id=c.id) }}" class="btn btn-wii-outline btn-wii-sm">
+            <i class="bi bi-folder2"></i> Materiales
+          </a>
+          <a href="{{ url_for('tareas.listar_tareas', curso_id=c.id) }}" class="btn btn-wii btn-wii-sm">
+            <i class="bi bi-journal-check"></i> Tareas
+          </a>
+        {% endif %}
+
+        {% if current_user.es_alumno %}
+        <a href="{{ url_for('materiales.consultar_materiales', curso_id=c.id) }}" class="btn btn-wii-outline btn-wii-sm">
+          <i class="bi bi-folder2-open"></i> Materiales
+        </a>
+        <a href="{{ url_for('tareas.listar_tareas', curso_id=c.id) }}" class="btn btn-wii btn-wii-sm">
+          <i class="bi bi-journal-check"></i> Tareas
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+  <div style="font-size:4rem;opacity:0.35;">📚</div>
+  <h5 class="text-muted mt-2" style="font-weight:800;">No hay cursos disponibles.</h5>
+  {% if current_user.es_profesor %}
+  <a href="{{ url_for('cursos.crear_curso') }}" class="btn btn-wii mt-3">
+    <i class="bi bi-plus-circle me-1"></i>Crear mi primer curso
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

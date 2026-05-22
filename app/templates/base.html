@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}SGCI{% endblock %} — Sistema de Gestión de Cursos de Idiomas</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --wii-blue:       #1a6bbf;
+      --wii-blue-light: #3a8de0;
+      --wii-sky:        #c8e8ff;
+      --wii-white:      #f0f8ff;
+      --wii-gray:       #8aaccc;
+      --wii-dark:       #0d3b6e;
+      --wii-green:      #3cb878;
+      --wii-red:        #e03a3a;
+      --wii-yellow:     #f5c518;
+      --wii-bubble:     rgba(255,255,255,0.55);
+    }
+
+    * { font-family: 'Nunito', sans-serif; }
+
+    body {
+      background: linear-gradient(160deg, #d8eeff 0%, #eaf4ff 40%, #f5fbff 100%);
+      min-height: 100vh;
+    }
+
+    /* ─── NAVBAR ─── */
+    .wii-navbar {
+      background: linear-gradient(180deg, #1a6bbf 0%, #0d4d99 100%);
+      border-bottom: 3px solid #0a3a7a;
+      box-shadow: 0 4px 16px rgba(10,58,122,0.35);
+      padding: 0.5rem 0;
+    }
+    .wii-navbar .navbar-brand {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #fff !important;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .wii-navbar .nav-link,
+    .wii-navbar .dropdown-toggle {
+      color: rgba(255,255,255,0.92) !important;
+      font-weight: 700;
+      font-size: 0.88rem;
+      padding: 0.5rem 0.8rem !important;
+      border-radius: 20px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .wii-navbar .nav-link:hover,
+    .wii-navbar .dropdown-toggle:hover {
+      background: rgba(255,255,255,0.18) !important;
+      color: #fff !important;
+    }
+    .wii-navbar .dropdown-menu {
+      background: rgba(255,255,255,0.97);
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(10,58,122,0.22);
+      padding: 0.5rem;
+      min-width: 210px;
+    }
+    .wii-navbar .dropdown-item {
+      border-radius: 10px;
+      padding: 0.5rem 0.9rem;
+      font-weight: 700;
+      font-size: 0.87rem;
+      color: var(--wii-dark);
+      transition: background 0.13s;
+    }
+    .wii-navbar .dropdown-item:hover {
+      background: var(--wii-sky);
+      color: var(--wii-blue);
+    }
+    .wii-navbar .dropdown-item i { width: 1.3rem; }
+    .wii-navbar .dropdown-divider { opacity: 0.15; }
+    .wii-navbar .navbar-toggler { border: 2px solid rgba(255,255,255,0.4); }
+    .wii-navbar .navbar-toggler-icon { filter: invert(1); }
+
+    /* ─── BUBBLE CARD ─── */
+    .wii-card {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(10px);
+      border: 1.5px solid rgba(255,255,255,0.85);
+      border-radius: 22px;
+      box-shadow: 0 6px 24px rgba(26,107,191,0.13), 0 1px 4px rgba(255,255,255,0.8) inset;
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .wii-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(26,107,191,0.2);
+    }
+    .wii-card .card-header {
+      border-radius: 20px 20px 0 0;
+      border-bottom: none;
+      padding: 0.75rem 1.2rem;
+      font-weight: 800;
+    }
+    .wii-card .card-footer {
+      border-radius: 0 0 20px 20px;
+      border-top: 1px solid rgba(200,232,255,0.6);
+      background: rgba(240,248,255,0.5);
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn-wii {
+      background: linear-gradient(180deg, #3a8de0 0%, #1a6bbf 100%);
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      font-weight: 800;
+      padding: 0.5rem 1.4rem;
+      box-shadow: 0 3px 0 #0a4a9a, 0 4px 12px rgba(26,107,191,0.35);
+      transition: transform 0.1s, box-shadow 0.1s;
+      letter-spacing: 0.01em;
+    }
+    .btn-wii:hover {
+      background: linear-gradient(180deg, #4fa0f0 0%, #2278cc 100%);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 0 #0a4a9a, 0 6px 16px rgba(26,107,191,0.4);
+    }
+    .btn-wii:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 #0a4a9a;
+    }
+
+    .btn-wii-green {
+      background: linear-gradient(180deg, #52cc8a 0%, #3cb878 100%);
+      border: none; border-radius: 50px; color: #fff; font-weight: 800;
+      padding: 0.5rem 1.4rem;
+      box-shadow: 0 3px 0 #1e8050, 0 4px 12px rgba(60,184,120,0.35);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-wii-green:hover { color:#fff; background: linear-gradient(180deg,#62dc9a 0%,#4cc888 100%); transform:translateY(-1px); }
+    .btn-wii-green:active { transform:translateY(1px); }
+
+    .btn-wii-red {
+      background: linear-gradient(180deg, #f05555 0%, #e03a3a 100%);
+      border: none; border-radius: 50px; color: #fff; font-weight: 800;
+      padding: 0.5rem 1.4rem;
+      box-shadow: 0 3px 0 #aa1a1a, 0 4px 12px rgba(224,58,58,0.35);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-wii-red:hover { color:#fff; background: linear-gradient(180deg,#f56666 0%,#ee4a4a 100%); transform:translateY(-1px); }
+    .btn-wii-red:active { transform:translateY(1px); }
+
+    .btn-wii-outline {
+      background: rgba(255,255,255,0.7);
+      border: 2px solid var(--wii-blue-light);
+      border-radius: 50px; color: var(--wii-blue); font-weight: 800;
+      padding: 0.45rem 1.3rem;
+      transition: all 0.15s;
+    }
+    .btn-wii-outline:hover {
+      background: var(--wii-sky); color: var(--wii-dark);
+      border-color: var(--wii-blue);
+    }
+
+    .btn-wii-sm { padding: 0.3rem 1rem; font-size: 0.82rem; }
+
+    /* ─── FORMS ─── */
+    .wii-input {
+      border-radius: 14px;
+      border: 2px solid #c8e0f8;
+      background: rgba(255,255,255,0.85);
+      padding: 0.55rem 0.9rem;
+      font-weight: 600;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .wii-input:focus {
+      border-color: var(--wii-blue-light);
+      box-shadow: 0 0 0 3px rgba(58,141,224,0.18);
+      background: #fff;
+      outline: none;
+    }
+    .wii-label {
+      font-weight: 800;
+      font-size: 0.88rem;
+      color: var(--wii-dark);
+      margin-bottom: 0.3rem;
+    }
+
+    /* ─── CHANNEL GRID (Wii-style tiles) ─── */
+    .wii-channel {
+      background: rgba(255,255,255,0.78);
+      border: 2px solid rgba(255,255,255,0.9);
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(26,107,191,0.12), 0 1px 3px rgba(255,255,255,0.7) inset;
+      transition: transform 0.16s, box-shadow 0.16s;
+      overflow: hidden;
+      height: 100%;
+    }
+    .wii-channel:hover {
+      transform: scale(1.025);
+      box-shadow: 0 8px 28px rgba(26,107,191,0.22);
+    }
+    .wii-channel-header {
+      padding: 0.6rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .wii-channel-body { padding: 1rem 1.1rem; }
+    .wii-channel-footer {
+      padding: 0.6rem 1rem;
+      background: rgba(200,232,255,0.35);
+      border-top: 1px solid rgba(200,232,255,0.6);
+    }
+
+    /* ─── BADGES ─── */
+    .wii-badge {
+      border-radius: 50px;
+      font-weight: 800;
+      font-size: 0.73rem;
+      padding: 0.3em 0.75em;
+    }
+    .wii-badge-blue   { background: var(--wii-sky); color: var(--wii-dark); }
+    .wii-badge-green  { background: #d4f5e5; color: #1a6040; }
+    .wii-badge-yellow { background: #fff3cd; color: #7a5c00; }
+    .wii-badge-red    { background: #ffe0e0; color: #8a1a1a; }
+    .wii-badge-gray   { background: #e8eef5; color: #4a6080; }
+
+    /* ─── PAGE TITLE ─── */
+    .wii-page-title {
+      font-size: 1.65rem;
+      font-weight: 900;
+      color: var(--wii-dark);
+      letter-spacing: -0.02em;
+    }
+    .wii-page-title i { color: var(--wii-blue); }
+
+    /* ─── TABLE ─── */
+    .wii-table {
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.78);
+      box-shadow: 0 4px 20px rgba(26,107,191,0.1);
+    }
+    .wii-table thead th {
+      background: linear-gradient(180deg, #1a6bbf 0%, #0d4d99 100%);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.82rem;
+      border: none;
+      padding: 0.85rem 1rem;
+    }
+    .wii-table tbody tr { transition: background 0.12s; }
+    .wii-table tbody tr:hover { background: rgba(200,232,255,0.35); }
+    .wii-table tbody td { border-color: rgba(200,232,255,0.5); padding: 0.75rem 1rem; font-weight: 600; }
+
+    /* ─── TOAST ─── */
+    .toast-container { z-index: 1090; }
+    .toast { border-radius: 16px !important; font-weight: 700; box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important; }
+
+    /* ─── FOOTER ─── */
+    .wii-footer {
+      background: linear-gradient(180deg, #1a6bbf 0%, #0d4d99 100%);
+      color: rgba(255,255,255,0.8);
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-top: 3px solid #0a3a7a;
+    }
+
+    /* ─── MISC ─── */
+    main { min-height: 78vh; padding-top: 1.8rem; padding-bottom: 2.5rem; }
+    .wii-divider { border: none; border-top: 2px solid rgba(200,232,255,0.8); margin: 1.2rem 0; }
+    .text-wii { color: var(--wii-blue) !important; }
+    .text-wii-dark { color: var(--wii-dark) !important; }
+    a { color: var(--wii-blue); }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<nav class="navbar navbar-expand-lg wii-navbar sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('cursos.listar_cursos') }}">
+      <i class="bi bi-translate me-1"></i> SGCI
+    </a>
+
+    <button class="navbar-toggler border-0" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navbarSGCI"
+            aria-controls="navbarSGCI" aria-expanded="false" aria-label="Menú">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSGCI">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+        {% if not current_user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-person-lock me-1"></i>Acceso
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('auth.login') }}">
+              <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('auth.register') }}">
+              <i class="bi bi-person-plus"></i> Registrarse</a></li>
+          </ul>
+        </li>
+        {% endif %}
+
+        {% if current_user.is_authenticated %}
+
+        {% if current_user.es_profesor or current_user.es_admin %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-journal-bookmark me-1"></i>Cursos
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('cursos.listar_cursos') }}">
+              <i class="bi bi-list-ul"></i> Mis Cursos</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('cursos.crear_curso') }}">
+              <i class="bi bi-plus-circle"></i> Crear Curso</a></li>
+          </ul>
+        </li>
+        {% endif %}
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-folder2-open me-1"></i>Materiales
+          </a>
+          <ul class="dropdown-menu">
+            {% if current_user.es_alumno %}
+            <li><a class="dropdown-item" href="{{ url_for('inscripciones.mis_inscripciones') }}">
+              <i class="bi bi-eye"></i> Ver mis materiales</a></li>
+            {% else %}
+            <li><a class="dropdown-item" href="{{ url_for('cursos.listar_cursos') }}">
+              <i class="bi bi-cloud-arrow-up"></i> Subir material</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('cursos.listar_cursos') }}">
+              <i class="bi bi-sliders"></i> Gestionar materiales</a></li>
+            {% endif %}
+          </ul>
+        </li>
+
+        {% if current_user.es_alumno %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-pencil-square me-1"></i>Inscripciones
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('inscripciones.cursos_disponibles') }}">
+              <i class="bi bi-search"></i> Cursos disponibles</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('inscripciones.mis_inscripciones') }}">
+              <i class="bi bi-card-checklist"></i> Mis inscripciones</a></li>
+          </ul>
+        </li>
+        {% endif %}
+
+        {% if current_user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('cursos.listar_cursos') }}">
+            <i class="bi bi-journal-check me-1"></i>Tareas
+          </a>
+        </li>
+        {% endif %}
+
+        {% if current_user.es_admin %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-gear me-1"></i>Admin
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('admin.gestionar_usuarios') }}">
+              <i class="bi bi-people"></i> Gestionar usuarios</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('admin.consultar_cursos') }}">
+              <i class="bi bi-table"></i> Consultar cursos</a></li>
+          </ul>
+        </li>
+        {% endif %}
+
+        {% endif %}
+      </ul>
+
+      <ul class="navbar-nav ms-auto align-items-center">
+        {% if current_user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#"
+             role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle fs-5"></i>
+            <span class="d-none d-md-inline">{{ current_user.nombre }}</span>
+            <span class="wii-badge wii-badge-yellow ms-1">{{ current_user.rol }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><h6 class="dropdown-header">{{ current_user.nombre_completo }}</h6></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger fw-bold" href="{{ url_for('auth.logout') }}">
+              <i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="btn btn-wii btn-wii-sm" href="{{ url_for('auth.login') }}">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Entrar
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- ═══════════════════════════════════════════════ -->
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  {% for category, message in messages %}
+  <div class="toast align-items-center text-bg-{{ category if category != 'message' else 'secondary' }} border-0 show"
+       role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="4500">
+    <div class="d-flex">
+      <div class="toast-body">{{ message }}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto"
+              data-bs-dismiss="toast" aria-label="Cerrar"></button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+
+
+<footer class="wii-footer py-3 mt-auto">
+  <div class="container text-center">
+    SGCI &copy; {{ now.year if now is defined else '2026' }} &nbsp;·&nbsp;
+    <strong style="color:#fff">Equipo Birria</strong> &nbsp;·&nbsp;
+    Proyecto de Software — Ingeniería en Sistemas
+  </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".toast").forEach(el => new bootstrap.Toast(el).show());
+  });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

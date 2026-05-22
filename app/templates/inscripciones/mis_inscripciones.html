@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Mis Inscripciones{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="wii-page-title mb-0"><i class="bi bi-card-checklist"></i> Mis Inscripciones</h3>
+  <a href="{{ url_for('inscripciones.cursos_disponibles') }}" class="btn btn-wii btn-wii-sm">
+    <i class="bi bi-search me-1"></i>Ver cursos
+  </a>
+</div>
+
+{% if inscripciones %}
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  {% for insc in inscripciones %}
+  <div class="col">
+    <div class="wii-channel">
+      <div class="wii-channel-body">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <h5 class="mb-0" style="font-weight:900;color:#0d3b6e;">{{ insc.curso.titulo }}</h5>
+          <span class="wii-badge wii-badge-blue ms-2">{{ insc.curso.idioma }} · {{ insc.curso.nivel }}</span>
+        </div>
+        <div style="font-size:0.83rem;font-weight:700;color:#4a6080;">
+          <div><i class="bi bi-person me-1 text-wii"></i>{{ insc.curso.profesor.nombre_completo }}</div>
+          <div><i class="bi bi-calendar-check me-1 text-wii"></i>Inscrito el {{ insc.fecha_inscripcion.strftime('%d/%m/%Y') }}</div>
+          <div class="mt-1">Estado:
+            <span class="wii-badge {% if insc.curso.estado == 'publicado' %}wii-badge-green{% elif insc.curso.estado == 'cerrado' %}wii-badge-red{% else %}wii-badge-yellow{% endif %}">
+              {{ insc.curso.estado|capitalize }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="wii-channel-footer d-flex gap-2">
+        <a href="{{ url_for('materiales.consultar_materiales', curso_id=insc.curso_id) }}"
+           class="btn btn-wii btn-wii-sm">
+          <i class="bi bi-folder2-open me-1"></i>Ver materiales
+        </a>
+        <form method="POST"
+              action="{{ url_for('inscripciones.cancelar_inscripcion', inscripcion_id=insc.id) }}"
+              onsubmit="return confirm('¿Cancelar tu inscripción a «{{ insc.curso.titulo }}»?')">
+          <button type="submit" class="btn btn-wii-red btn-wii-sm">
+            <i class="bi bi-x-circle me-1"></i>Cancelar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+  <div style="font-size:4rem;opacity:0.35;">📋</div>
+  <h5 class="text-muted mt-2" style="font-weight:800;">Aún no estás inscrito en ningún curso.</h5>
+  <a href="{{ url_for('inscripciones.cursos_disponibles') }}" class="btn btn-wii mt-3">
+    <i class="bi bi-search me-1"></i>Explorar cursos
+  </a>
+</div>
+{% endif %}
+{% endblock %}

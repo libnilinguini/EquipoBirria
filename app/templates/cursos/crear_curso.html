@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Crear Curso{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-md-9 col-lg-8">
+    <div class="wii-card p-4">
+      <h4 class="wii-page-title mb-1"><i class="bi bi-plus-circle-fill"></i> Crear Nuevo Curso</h4>
+      <p class="text-muted mb-4" style="font-weight:700;font-size:0.88rem;">El curso se guardará en estado <strong>Borrador</strong> hasta que lo publiques.</p>
+
+      <form method="POST" action="{{ url_for('cursos.crear_curso') }}">
+        <div class="row g-3">
+
+          <!-- Datos básicos -->
+          <div class="col-12">
+            <label class="wii-label">Título del curso <span class="text-danger">*</span></label>
+            <input type="text" name="titulo" class="form-control wii-input"
+                   value="{{ form_data.get('titulo', '') }}" placeholder="Ej. Inglés para principiantes" required />
+          </div>
+          <div class="col-md-6">
+            <label class="wii-label">Idioma <span class="text-danger">*</span></label>
+            <input type="text" name="idioma" class="form-control wii-input"
+                   value="{{ form_data.get('idioma', '') }}" placeholder="Ej. Inglés, Francés" required />
+          </div>
+          <div class="col-md-6">
+            <label class="wii-label">Nivel <span class="text-danger">*</span></label>
+            <select name="nivel" class="form-select wii-input" required>
+              <option value="">— Selecciona —</option>
+              {% for n in ['A1','A2','B1','B2','C1','C2'] %}
+              <option value="{{ n }}" {{ 'selected' if form_data.get('nivel') == n }}>{{ n }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="wii-label">Descripción</label>
+            <textarea name="descripcion" class="form-control wii-input" rows="3"
+                      placeholder="Describe los objetivos y contenidos…">{{ form_data.get('descripcion', '') }}</textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="wii-label">Fecha de inicio</label>
+            <input type="date" name="fecha_inicio" class="form-control wii-input"
+                   value="{{ form_data.get('fecha_inicio', '') }}" />
+          </div>
+          <div class="col-md-6">
+            <label class="wii-label">Fecha de fin</label>
+            <input type="date" name="fecha_fin" class="form-control wii-input"
+                   value="{{ form_data.get('fecha_fin', '') }}" />
+          </div>
+          <div class="col-md-6">
+            <label class="wii-label">Cupo máximo</label>
+            <input type="number" name="cupo_maximo" class="form-control wii-input"
+                   min="1" value="{{ form_data.get('cupo_maximo', '') }}" placeholder="Vacío = ilimitado" />
+          </div>
+
+          <!-- Código de acceso -->
+          <div class="col-md-6">
+            <label class="wii-label">
+              <i class="bi bi-key-fill text-wii me-1"></i>Código de acceso
+              <span class="wii-badge wii-badge-gray ms-1">Opcional</span>
+            </label>
+            <input type="text" name="codigo_acceso" class="form-control wii-input"
+                   value="{{ form_data.get('codigo_acceso', '') }}"
+                   placeholder="Contraseña para unirse al curso" />
+            <div class="form-text" style="font-weight:600;font-size:0.8rem;">Si se define, los alumnos deberán ingresarla al inscribirse.</div>
+          </div>
+
+          <!-- Ayudantes -->
+          {% if profesores|length > 1 %}
+          <div class="col-12">
+            <label class="wii-label">
+              <i class="bi bi-people-fill text-wii me-1"></i>Ayudantes
+              <span class="wii-badge wii-badge-gray ms-1">Opcional</span>
+            </label>
+            <div class="row g-2 mt-1">
+              {% for p in profesores %}
+              {% if p.id != current_user.id %}
+              <div class="col-md-4">
+                <label class="d-flex align-items-center gap-2 p-2 rounded-3"
+                       style="background:rgba(200,232,255,0.4);border:1.5px solid #c8e0f8;cursor:pointer;">
+                  <input type="checkbox" name="ayudantes" value="{{ p.id }}"
+                         {% if form_data.getlist and p.id|string in form_data.getlist('ayudantes') %}checked{% endif %} />
+                  <span style="font-weight:700;font-size:0.87rem;">{{ p.nombre_completo }}</span>
+                </label>
+              </div>
+              {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Calificaciones -->
+          <div class="col-12">
+            <div class="p-3 rounded-4" style="background:rgba(200,232,255,0.35);border:1.5px solid #c8e0f8;">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <input type="checkbox" name="calificaciones_activas" id="cal_activas"
+                       style="width:1.1rem;height:1.1rem;" />
+                <label for="cal_activas" class="wii-label mb-0" style="cursor:pointer;">
+                  <i class="bi bi-star-fill text-wii me-1"></i>Habilitar sistema de calificaciones
+                </label>
+              </div>
+              <div class="row g-2" id="cal_opciones" style="display:none!important;">
+                <div class="col-md-4">
+                  <label class="wii-label" style="font-size:0.82rem;">Calificación mínima</label>
+                  <input type="number" name="calificacion_minima" class="form-control wii-input"
+                         step="0.1" placeholder="Ej. 0" />
+                </div>
+                <div class="col-md-4">
+                  <label class="wii-label" style="font-size:0.82rem;">Calificación máxima</label>
+                  <input type="number" name="calificacion_maxima" class="form-control wii-input"
+                         step="0.1" placeholder="Ej. 10" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /row -->
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-wii"><i class="bi bi-floppy me-1"></i>Guardar curso</button>
+          <a href="{{ url_for('cursos.listar_cursos') }}" class="btn btn-wii-outline">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const cb = document.getElementById('cal_activas');
+  const opts = document.getElementById('cal_opciones');
+  cb.addEventListener('change', () => opts.style.setProperty('display', cb.checked ? 'flex' : 'none', 'important'));
+</script>
+{% endblock %}

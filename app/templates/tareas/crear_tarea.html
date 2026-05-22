@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Crear Tarea{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-md-7">
+    <div class="wii-card p-4">
+      <h4 class="wii-page-title mb-1"><i class="bi bi-journal-plus"></i> Nueva Tarea</h4>
+      <p class="text-muted mb-4" style="font-weight:700;font-size:0.88rem;">Curso: <strong>{{ curso.titulo }}</strong></p>
+
+      <form method="POST" action="{{ url_for('tareas.crear_tarea', curso_id=curso.id) }}">
+        <div class="mb-3">
+          <label class="wii-label">Título <span class="text-danger">*</span></label>
+          <input type="text" name="titulo" class="form-control wii-input"
+                 placeholder="Ej. Examen parcial unidad 1" required />
+        </div>
+        <div class="mb-3">
+          <label class="wii-label">Descripción / Instrucciones</label>
+          <textarea name="descripcion" class="form-control wii-input" rows="4"
+                    placeholder="Describe qué deben entregar los alumnos…"></textarea>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="wii-label">Fecha y hora límite</label>
+            <input type="datetime-local" name="fecha_limite" class="form-control wii-input" />
+          </div>
+          <div class="col-md-6">
+            <label class="wii-label">Puntaje máximo <span class="wii-badge wii-badge-gray ms-1">Opcional</span></label>
+            <input type="number" name="puntaje_max" class="form-control wii-input"
+                   step="0.1" min="0" placeholder="Ej. 100" />
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-wii"><i class="bi bi-check-circle me-1"></i>Crear tarea</button>
+          <a href="{{ url_for('tareas.listar_tareas', curso_id=curso.id) }}" class="btn btn-wii-outline">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

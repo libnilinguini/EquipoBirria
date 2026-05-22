@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Entregar tarea{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-md-7">
+    <div class="wii-card p-4">
+      <h4 class="wii-page-title mb-1"><i class="bi bi-upload"></i> Entregar Tarea</h4>
+      <p class="text-muted mb-1" style="font-weight:700;font-size:0.88rem;">{{ tarea.titulo }}</p>
+      {% if tarea.descripcion %}
+      <div class="p-3 rounded-3 mb-3" style="background:rgba(200,232,255,0.4);border:1.5px solid #c8e0f8;font-size:0.87rem;font-weight:600;">
+        {{ tarea.descripcion }}
+      </div>
+      {% endif %}
+      {% if tarea.fecha_limite %}
+      <p class="mb-3" style="font-size:0.85rem;font-weight:700;color:#4a6080;">
+        <i class="bi bi-clock me-1 text-wii"></i>Límite: {{ tarea.fecha_limite.strftime('%d/%m/%Y %H:%M') }}
+        {% if tarea.vencida %}<span class="wii-badge wii-badge-red ms-1">Vencida</span>{% endif %}
+      </p>
+      {% endif %}
+
+      {% if entrega %}
+      <div class="wii-badge wii-badge-blue mb-3" style="font-size:0.85rem;display:inline-block;">
+        📤 Ya entregaste — puedes reenviar para actualizar
+      </div>
+      {% endif %}
+
+      <form method="POST"
+            action="{{ url_for('tareas.entregar', curso_id=curso.id, tarea_id=tarea.id) }}"
+            enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="wii-label">Comentario / Respuesta</label>
+          <textarea name="comentario" class="form-control wii-input" rows="4"
+                    placeholder="Escribe tu respuesta o comentario aquí…">{{ entrega.comentario if entrega else '' }}</textarea>
+        </div>
+        <div class="mb-3">
+          <label class="wii-label">Adjuntar archivo <span class="wii-badge wii-badge-gray ms-1">Opcional</span></label>
+          <input type="file" name="archivo" class="form-control wii-input"
+                 accept=".pdf,.docx,.pptx,.png,.jpg,.jpeg" />
+          <div class="form-text" style="font-weight:600;font-size:0.8rem;">PDF, DOCX, PPTX, PNG, JPG · Máx. 16 MB</div>
+        </div>
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-wii-green"><i class="bi bi-send me-1"></i>Enviar entrega</button>
+          <a href="{{ url_for('tareas.listar_tareas', curso_id=curso.id) }}" class="btn btn-wii-outline">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

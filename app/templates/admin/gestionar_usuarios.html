@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Gestionar Usuarios{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="wii-page-title mb-0"><i class="bi bi-people-fill"></i> Gestionar Usuarios</h3>
+  <span class="wii-badge wii-badge-blue" style="font-size:0.9rem;">{{ usuarios|length }} usuario(s)</span>
+</div>
+
+<div class="wii-card p-3 mb-4">
+  <form method="GET" class="d-flex gap-2 align-items-end">
+    <div>
+      <label class="wii-label" style="font-size:0.82rem;">Filtrar por rol</label>
+      <select name="rol" class="form-select wii-input" style="min-width:160px;">
+        <option value="">Todos los roles</option>
+        {% for r in roles %}
+        <option value="{{ r }}" {{ 'selected' if rol_filtro == r }}>{{ r|capitalize }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-wii btn-wii-sm"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+    <a href="{{ url_for('admin.gestionar_usuarios') }}" class="btn btn-wii-outline btn-wii-sm">Limpiar</a>
+  </form>
+</div>
+
+<div class="wii-table">
+  <table class="table table-hover align-middle mb-0">
+    <thead>
+      <tr>
+        <th>#</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Registro</th><th class="text-center">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr>
+        <td style="color:#aab8c8;font-weight:700;font-size:0.82rem;">{{ u.id }}</td>
+        <td style="font-weight:800;color:#0d3b6e;">{{ u.nombre_completo }}</td>
+        <td style="font-weight:600;font-size:0.88rem;">{{ u.email }}</td>
+        <td>
+          <span class="wii-badge {% if u.rol == 'administrador' %}wii-badge-red{% elif u.rol == 'profesor' %}wii-badge-blue{% else %}wii-badge-gray{% endif %}">
+            {{ u.rol|capitalize }}
+          </span>
+        </td>
+        <td>
+          <span class="wii-badge {% if u.activo %}wii-badge-green{% else %}wii-badge-red{% endif %}">
+            {{ 'Activo' if u.activo else 'Inactivo' }}
+          </span>
+        </td>
+        <td style="font-size:0.82rem;font-weight:700;color:#4a6080;">{{ u.fecha_registro.strftime('%d/%m/%Y') }}</td>
+        <td class="text-center">
+          <div class="d-flex gap-1 justify-content-center">
+            <a href="{{ url_for('admin.asignar_rol', usuario_id=u.id) }}" class="btn btn-wii-outline btn-wii-sm" title="Asignar rol">
+              <i class="bi bi-person-gear"></i>
+            </a>
+            {% if not u.es_admin %}
+            <form method="POST" action="{{ url_for('admin.toggle_usuario', usuario_id=u.id) }}" class="d-inline"
+                  onsubmit="return confirm('¿Confirmas el cambio de estado?')">
+              <button type="submit" class="btn btn-wii-sm {% if u.activo %}btn-wii-red{% else %}btn-wii-green{% endif %}"
+                      title="{{ 'Desactivar' if u.activo else 'Activar' }}">
+                <i class="bi {{ 'bi-person-x' if u.activo else 'bi-person-check' }}"></i>
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="text-center text-muted py-4" style="font-weight:700;">No se encontraron usuarios.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

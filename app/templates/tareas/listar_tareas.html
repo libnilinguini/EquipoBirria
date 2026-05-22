@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Tareas — {{ curso.titulo }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="wii-page-title mb-0"><i class="bi bi-journal-check"></i> Tareas</h3>
+    <p class="text-muted mb-0 mt-1" style="font-weight:700;font-size:0.88rem;">{{ curso.titulo }}
+      <span class="wii-badge wii-badge-blue ms-1">{{ curso.idioma }} · {{ curso.nivel }}</span>
+    </p>
+  </div>
+  {% if es_staff %}
+  <a href="{{ url_for('tareas.crear_tarea', curso_id=curso.id) }}" class="btn btn-wii btn-wii-sm">
+    <i class="bi bi-plus-circle me-1"></i>Nueva tarea
+  </a>
+  {% endif %}
+</div>
+
+{% if tareas %}
+<div class="d-flex flex-column gap-3">
+  {% for t in tareas %}
+  <div class="wii-card p-3">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div class="flex-grow-1">
+        <h5 class="mb-1" style="font-weight:900;color:#0d3b6e;">{{ t.titulo }}</h5>
+        {% if t.descripcion %}
+        <p class="text-muted mb-2" style="font-size:0.87rem;font-weight:600;">{{ t.descripcion }}</p>
+        {% endif %}
+        <div style="font-size:0.82rem;font-weight:700;color:#4a6080;" class="d-flex flex-wrap gap-3">
+          {% if t.fecha_limite %}
+          <span>
+            <i class="bi bi-clock me-1 text-wii"></i>Límite: {{ t.fecha_limite.strftime('%d/%m/%Y %H:%M') }}
+            {% if t.vencida %}<span class="wii-badge wii-badge-red ms-1">Vencida</span>{% endif %}
+          </span>
+          {% endif %}
+          {% if t.puntaje_max %}
+          <span><i class="bi bi-star me-1 text-wii"></i>Puntaje máx: {{ t.puntaje_max }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 align-items-center">
+        {% if es_staff %}
+          {% set n_entregas = t.entregas.count() %}
+          <a href="{{ url_for('tareas.ver_entregas', curso_id=curso.id, tarea_id=t.id) }}"
+             class="btn btn-wii-outline btn-wii-sm">
+            <i class="bi bi-inbox me-1"></i>{{ n_entregas }} entrega(s)
+          </a>
+          <form method="POST"
+                action="{{ url_for('tareas.eliminar_tarea', curso_id=curso.id, tarea_id=t.id) }}"
+                onsubmit="return confirm('¿Eliminar esta tarea?')">
+            <button class="btn btn-wii-red btn-wii-sm"><i class="bi bi-trash"></i></button>
+          </form>
+        {% else %}
+          {% set mi_entrega = mis_entregas.get(t.id) %}
+          {% if mi_entrega %}
+            {% if mi_entrega.estado == 'calificado' %}
+              <span class="wii-badge wii-badge-green" style="font-size:0.85rem;">
+                ✅ {{ mi_entrega.calificacion if mi_entrega.calificacion is not none else 'Calificado' }}
+              </span>
+            {% else %}
+              <span class="wii-badge wii-badge-blue" style="font-size:0.85rem;">📤 Entregado</span>
+            {% endif %}
+            <a href="{{ url_for('tareas.entregar', curso_id=curso.id, tarea_id=t.id) }}"
+               class="btn btn-wii-outline btn-wii-sm">Reenviar</a>
+          {% elif not t.vencida %}
+            <a href="{{ url_for('tareas.entregar', curso_id=curso.id, tarea_id=t.id) }}"
+               class="btn btn-wii btn-wii-sm"><i class="bi bi-upload me-1"></i>Entregar</a>
+          {% else %}
+            <span class="wii-badge wii-badge-red">Sin entregar</span>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+  <div style="font-size:4rem;opacity:0.35;">📋</div>
+  <h5 class="text-muted mt-2" style="font-weight:800;">No hay tareas en este curso aún.</h5>
+  {% if es_staff %}
+  <a href="{{ url_for('tareas.crear_tarea', curso_id=curso.id) }}" class="btn btn-wii mt-3">
+    <i class="bi bi-plus-circle me-1"></i>Crear la primera tarea
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="mt-4">
+  <a href="{{ url_for('cursos.listar_cursos') }}" class="btn btn-wii-outline btn-wii-sm">
+    <i class="bi bi-arrow-left me-1"></i>Volver a cursos
+  </a>
+</div>
+{% endblock %}

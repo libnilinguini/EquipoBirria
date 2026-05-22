@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Gestionar Materiales{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="wii-page-title mb-0"><i class="bi bi-sliders"></i> Gestionar Materiales</h3>
+    <p class="text-muted mb-0 mt-1" style="font-weight:700;font-size:0.88rem;">Curso: <strong>{{ curso.titulo }}</strong></p>
+  </div>
+  <a href="{{ url_for('materiales.subir_material', curso_id=curso.id) }}" class="btn btn-wii btn-wii-sm">
+    <i class="bi bi-cloud-arrow-up me-1"></i>Subir material
+  </a>
+</div>
+
+{% if materiales %}
+<div class="wii-table">
+  <table class="table table-hover align-middle mb-0">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Título</th>
+        <th>Descripción</th>
+        <th>Subido</th>
+        <th class="text-center">Eliminar</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in materiales %}
+      <tr>
+        <td>
+          {% if m.tipo == 'video' %}
+            <span class="wii-badge wii-badge-red">🎬 Video</span>
+          {% elif m.tipo == 'imagen' %}
+            <span class="wii-badge wii-badge-blue">🖼️ Imagen</span>
+          {% else %}
+            <span class="wii-badge wii-badge-gray">📄 Doc</span>
+          {% endif %}
+        </td>
+        <td style="font-weight:800;color:#0d3b6e;">{{ m.titulo }}</td>
+        <td class="text-muted" style="font-size:0.85rem;font-weight:600;">{{ m.descripcion or '—' }}</td>
+        <td style="font-size:0.83rem;font-weight:700;color:#4a6080;">{{ m.fecha_subida.strftime('%d/%m/%Y') }}</td>
+        <td class="text-center">
+          <form method="POST"
+                action="{{ url_for('materiales.eliminar_material', material_id=m.id) }}"
+                onsubmit="return confirm('¿Eliminar «{{ m.titulo }}»?')">
+            <button type="submit" class="btn btn-wii-red btn-wii-sm">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="text-center py-5">
+  <div style="font-size:4rem;opacity:0.35;">📂</div>
+  <h5 class="text-muted mt-2" style="font-weight:800;">Este curso no tiene materiales aún.</h5>
+  <a href="{{ url_for('materiales.subir_material', curso_id=curso.id) }}" class="btn btn-wii mt-3">
+    <i class="bi bi-upload me-1"></i>Subir el primer material
+  </a>
+</div>
+{% endif %}
+
+<div class="mt-3">
+  <a href="{{ url_for('cursos.listar_cursos') }}" class="btn btn-wii-outline btn-wii-sm">
+    <i class="bi bi-arrow-left me-1"></i>Volver a mis cursos
+  </a>
+</div>
+{% endblock %}

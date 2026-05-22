@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Calificar entrega{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-md-7">
+    <div class="wii-card p-4">
+      <h4 class="wii-page-title mb-1"><i class="bi bi-star-fill"></i> Calificar Entrega</h4>
+      <p class="text-muted mb-3" style="font-weight:700;font-size:0.88rem;">
+        Alumno: <strong>{{ entrega.alumno.nombre_completo }}</strong> · Tarea: {{ tarea.titulo }}
+      </p>
+
+      <!-- Contenido de la entrega -->
+      <div class="p-3 rounded-4 mb-4" style="background:rgba(200,232,255,0.35);border:1.5px solid #c8e0f8;">
+        <p class="wii-label mb-1">Entrega del alumno</p>
+        {% if entrega.comentario %}
+        <p style="font-size:0.9rem;font-weight:600;">{{ entrega.comentario }}</p>
+        {% endif %}
+        {% if entrega.nombre_archivo %}
+        <a href="{{ url_for('static', filename='uploads/' ~ entrega.nombre_archivo) }}"
+           class="btn btn-wii-outline btn-wii-sm" target="_blank">
+          <i class="bi bi-download me-1"></i>Descargar archivo
+        </a>
+        {% endif %}
+        {% if not entrega.comentario and not entrega.nombre_archivo %}
+        <span class="text-muted" style="font-size:0.87rem;">Sin contenido adjunto.</span>
+        {% endif %}
+      </div>
+
+      <form method="POST"
+            action="{{ url_for('tareas.calificar', curso_id=curso.id, tarea_id=tarea.id, entrega_id=entrega.id) }}">
+        <div class="mb-3">
+          <label class="wii-label">
+            Calificación
+            {% if tarea.puntaje_max %}<span class="wii-badge wii-badge-gray ms-1">Máx. {{ tarea.puntaje_max }}</span>{% endif %}
+            {% if curso.calificaciones_activas and curso.calificacion_minima is not none %}
+            <span class="wii-badge wii-badge-blue ms-1">{{ curso.calificacion_minima }} – {{ curso.calificacion_maxima }}</span>
+            {% endif %}
+          </label>
+          <input type="number" name="calificacion" class="form-control wii-input"
+                 step="0.1"
+                 value="{{ entrega.calificacion if entrega.calificacion is not none else '' }}"
+                 placeholder="Ingresa la calificación" />
+        </div>
+        <div class="mb-3">
+          <label class="wii-label">Retroalimentación <span class="wii-badge wii-badge-gray ms-1">Opcional</span></label>
+          <textarea name="retroalimentacion" class="form-control wii-input" rows="3"
+                    placeholder="Comentarios para el alumno…">{{ entrega.retroalimentacion or '' }}</textarea>
+        </div>
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-wii"><i class="bi bi-check-circle me-1"></i>Guardar calificación</button>
+          <a href="{{ url_for('tareas.ver_entregas', curso_id=curso.id, tarea_id=tarea.id) }}"
+             class="btn btn-wii-outline">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
