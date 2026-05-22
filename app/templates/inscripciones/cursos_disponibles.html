@@ -49,31 +49,60 @@
         <p class="card-text text-muted small">
           {{ c.descripcion[:100] ~ '…' if c.descripcion and c.descripcion|length > 100 else c.descripcion or 'Sin descripción.' }}
         </p>
-        <ul class="list-unstyled small text-muted">
+        <ul class="list-unstyled small text-muted mb-0">
           <li><i class="bi bi-person me-1"></i>{{ c.profesor.nombre_completo }}</li>
-          <li><i class="bi bi-people me-1"></i>
-            {{ c.total_inscritos }} inscritos
+          <li>
+            <i class="bi bi-people me-1"></i>{{ c.total_inscritos }} inscritos
             {% if c.cupo_maximo %} / {{ c.cupo_maximo }}
               {% if not c.tiene_cupo %}
                 <span class="badge bg-danger ms-1">Sin cupo</span>
               {% endif %}
             {% endif %}
           </li>
-          {% if c.fecha_inicio %}
-          <li><i class="bi bi-calendar me-1"></i>
-            {{ c.fecha_inicio.strftime('%d/%m/%Y') }}
-            {% if c.fecha_fin %} – {{ c.fecha_fin.strftime('%d/%m/%Y') }}{% endif %}
+          {% if c.fecha_inicio or c.fecha_fin %}
+          <li>
+            <i class="bi bi-calendar-range me-1"></i>
+            {% if c.fecha_inicio %}{{ c.fecha_inicio.strftime('%d/%m/%Y') }}{% else %}—{% endif %}
+            →
+            {% if c.fecha_fin %}{{ c.fecha_fin.strftime('%d/%m/%Y') }}{% else %}Sin límite{% endif %}
+
+            {# Indicador visual del estado del período #}
+            {% if not c.inscripcion_abierta %}
+              {% set today = [] %}
+              <span class="badge bg-danger ms-1">Inscripciones cerradas</span>
+            {% else %}
+              <span class="badge bg-success ms-1">Inscripciones abiertas</span>
+            {% endif %}
           </li>
           {% endif %}
         </ul>
       </div>
+
       <div class="card-footer bg-transparent border-0">
+        {# Caso 1: ya inscrito #}
         {% if c.id in ids_inscritos %}
           <span class="btn btn-sm btn-success w-100 disabled">
             <i class="bi bi-check-circle me-1"></i>Ya inscrito
           </span>
+
+        {# Caso 2: sin cupo #}
         {% elif not c.tiene_cupo %}
-          <span class="btn btn-sm btn-secondary w-100 disabled">Sin cupo disponible</span>
+          <span class="btn btn-sm btn-secondary w-100 disabled">
+            <i class="bi bi-x-circle me-1"></i>Sin cupo disponible
+          </span>
+
+        {# Caso 3: inscripciones cerradas por fecha #}
+        {% elif not c.inscripcion_abierta %}
+          <span class="btn btn-sm btn-warning w-100 disabled text-dark">
+            <i class="bi bi-calendar-x me-1"></i>
+            {% if c.fecha_fin %}
+              Cerró el {{ c.fecha_fin.strftime('%d/%m/%Y') }}
+            {% else %}
+              Aún no disponible
+            {% endif %}
+          </span>
+
+        {# Caso 4: puede inscribirse #}
         {% else %}
           <form method="POST"
                 action="{{ url_for('inscripciones.inscribirse', curso_id=c.id) }}"

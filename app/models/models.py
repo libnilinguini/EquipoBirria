@@ -6,7 +6,7 @@ Tablas:  Usuario · Curso · Inscripcion · Material
 Equipo Birria
 """
 
-from datetime import datetime
+from datetime import datetime, date
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -175,6 +175,17 @@ class Curso(db.Model):
         if self.cupo_maximo is None:
             return True
         return self.total_inscritos < self.cupo_maximo
+
+
+    @property
+    def inscripcion_abierta(self) -> bool:
+        """True si HOY está dentro del período válido de inscripción."""
+        hoy = date.today()
+        if self.fecha_inicio and hoy < self.fecha_inicio:
+            return False
+        if self.fecha_fin and hoy > self.fecha_fin:
+            return False
+        return True
 
     def publicar(self) -> None:
         """Cambia el estado del curso a PUBLICADO."""
