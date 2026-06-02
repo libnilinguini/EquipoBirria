@@ -3,18 +3,37 @@ from app import create_app, db
 from app.models.models import Curso, Usuario, RolUsuario
 
 class TestCrearCurso(unittest.TestCase):
-    """Pruebas para el caso de uso: Crear Curso (Responsable: Libni Morales)"""
+    """Pruebas para el caso de uso: Crear Curso (Responsable: Libni Morales)
+       
+       Esta clase agrupa los escenarios normativos y alternativos para la 
+    creación de nuevos cursos dentro de la plataforma, asegurando las 
+    restricciones de roles y la integridad de los datos.
+    """
 
     def setUp(self):
+        """
+        Configuración inicial antes de cada prueba (Fixture Setup).
+        
+        Realiza las siguientes acciones:
+        1. Inicializa la aplicación Flask en entorno de 'testing'.
+        2. Configura una base de datos SQLite en memoria para aislamiento total.
+        3. Desactiva la protección CSRF para facilitar las peticiones HTTP de prueba.
+        4. Crea la estructura de tablas de la base de datos.
+        5. Registra un usuario con rol de Profesor y simula su inicio de sesión para permitir la creación de cursos.
+        """
+
+        # Configuración del entorno de pruebas
         self.app = create_app('testing')
         self.app.config['TESTING'] = True
         self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         self.app.config['WTF_CSRF_ENABLED'] = False
         
+        # Cliente de pruebas y contexto de la aplicación
         self.client = self.app.test_client()
         self.app_context = self.app.app_context()
         self.app_context.push()
-        
+
+        # Creación del esquema de la Base de Datos
         db.create_all()
         
         # Para crear un curso, necesitamos que exista un Profesor y que inicie sesión
@@ -35,12 +54,30 @@ class TestCrearCurso(unittest.TestCase):
         })
 
     def tearDown(self):
+        """
+        Limpieza del entorno después de cada prueba (Fixture Teardown).
+        
+        Remueve la sesión actual de la base de datos, destruye todas las tablas
+        y destruye el contexto de la aplicación para garantizar la independencia
+        entre escenarios de prueba.
+        """
+
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
 
     def test_n1_crear_borrador_exitoso(self):
-        """Prueba N1: Datos válidos, estado Borrador."""
+        """
+        Escenario N1: Creación exitosa de curso en estado Borrador.
+        
+        Objetivo: Verificar que un profesor autenticado pueda crear un curso
+                  proporcionando todos los campos requeridos válidos.
+        
+        Resultado esperado:
+        - El controlador responde con un mensaje de éxito.
+        - El registro se almacena en la base de datos con el estado inicial 'borrador'.
+        """
+        
         response = self.client.post('/cursos/crear', data={
             'titulo': 'Inglés A1',
             'descripcion': 'Curso básico introductorio',
